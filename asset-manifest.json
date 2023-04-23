@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Covid-Data-App/static/css/main.7401e0db.css",
+    "main.js": "/Covid-Data-App/static/js/main.7e995492.js",
+    "index.html": "/Covid-Data-App/index.html",
+    "main.7401e0db.css.map": "/Covid-Data-App/static/css/main.7401e0db.css.map",
+    "main.7e995492.js.map": "/Covid-Data-App/static/js/main.7e995492.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7401e0db.css",
+    "static/js/main.7e995492.js"
+  ]
+}
