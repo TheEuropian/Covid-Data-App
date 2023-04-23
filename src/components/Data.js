@@ -1,22 +1,21 @@
 
+
 import axios from 'axios';
 
 
 
-export const CovidData = async () => {
-
+const CovidData = async () => {
   const response = await axios.get('https://opendata.ecdc.europa.eu/covid19/casedistribution/json/');
 
   
      
 
        const isoData = response.data.records.map((item) => {
-          const date = item.dateRep.split("/").reverse().join('-');
+       const date = item.dateRep.split("/").reverse().join("-");
          
-       
-        
-          return { ...item, date  };
-        });
+   
+            return { ...item, date  };
+          });
 
 
         const sortedData = isoData.sort((a, b) => {
@@ -33,10 +32,20 @@ export const CovidData = async () => {
          
         });
 
-        // Add an id to each element in the array
+       
         const dataWithIndex = sortedData.map((item) => {
-          const casesOn1000 = ((item.cases/ item.popData2019) *1000).toFixed(5);
-          const deathsOn1000 = ((item.deaths/ item.popData2019) *1000).toFixed(5);
+          let casesOn1000, deathsOn1000;
+
+//To solve Cases_on_an_international_conveyance_Japan casesOn1000 NaN (if statement)
+
+          if (!item.hasOwnProperty('popData2019') || item.popData2019 === null) {
+            casesOn1000 = 0;
+            deathsOn1000 = 0;
+          } else {
+            casesOn1000 = ((item.cases / item.popData2019) * 1000).toFixed(5);
+            deathsOn1000 = ((item.deaths / item.popData2019) * 1000).toFixed(5);
+          }
+           // Add an id to each element in the array
          const id = item.date + item.geoId;
           return { ...item, id, casesOn1000, deathsOn1000};
         });
@@ -44,9 +53,10 @@ export const CovidData = async () => {
 
         let allCases = {};
         let allDeaths = {};
-       
         
-        const allCasesDeathsByCountry = dataWithIndex.map(( item) => {          
+        
+
+        const allData = dataWithIndex.map(( item) => {          
           const country = item.countriesAndTerritories;
           const cases = item.cases;
           const deaths = item.deaths;
@@ -64,51 +74,56 @@ export const CovidData = async () => {
 
 
           return { ...item, allCases: allCases[country], allDeaths: allDeaths[country] };
-        }, {})
+        },{})
+        // here we need to create a new object allCountries.
 
-
-
-      
-
-        const allCountries = {};
+        const allCountries = allData.reduce((accumulator, item) => {
+          const date = item.date;
         
-          for (let i = 0; i<allCasesDeathsByCountry.length; i++){
-            const item = allCasesDeathsByCountry[i];
-            const { date, cases, deaths, allCases, allDeaths, casesOn1000, deathsOn1000} = item;
-
-            if(!allCountries[date]){
-              allCountries[date] = {
-                id: "",
-                cases: 0,
-                deaths:0,
-                allCases:0,
-                allDeaths:0,
-                casesOn1000:0,
-                deathsOn1000:0
-
-              }
-              allCountries[date].id = date ? date + "all" : "all";
-              allCountries[date].cases += cases;
-              allCountries[date].deaths += deaths;
-              allCountries[date].allCases += allCases;
-              allCountries[date].allDeaths += allDeaths;
-              allCountries[date].casesOn1000 += casesOn1000;
-              allCountries[date].deathsOn1000 += deathsOn1000}
+          if (!accumulator[date]) {
+            accumulator[date] = {
+              date,
+              cases: 0,
+              deaths: 0,
+              allCases: 0,
+              allDeaths: 0,
+              casesOn1000: 0,
+              deathsOn1000: 0,
+              id: date + "All_countries",
+              countriesAndTerritories: "All_countries"
+            };
+          }
         
+          accumulator[date].cases += item.cases;
+          accumulator[date].deaths += item.deaths;
+          accumulator[date].allCases += item.allCases;
+          accumulator[date].allDeaths += item.allDeaths;
+          accumulator[date].casesOn1000 = parseFloat((accumulator[date].casesOn1000 + parseFloat(item.casesOn1000)).toFixed(5));
+          accumulator[date].deathsOn1000 = parseFloat((accumulator[date].deathsOn1000 + parseFloat(item.deathsOn1000)).toFixed(5));
+        
+          return accumulator;
+        }, {});
+        const allCountriesArray = Object.values(allCountries);
+
+        allCountriesArray.sort((a, b) => {
+          if (a.date > b.date) return -1;
+          if (a.date < b.date) return 1;
+          return 0;
+        });
+
+        allCountriesArray.forEach(countryData => {
+          allData.push(countryData);
+        });
+        allData.sort((a, b) => {
+          if (a.countriesAndTerritories === "All_countries") return -1;
+          if (b.countriesAndTerritories === "All_countries") return 1;
+          return 0;
+        });
+       
+
+        allData.unshift(allCountriesArray);
+
+        return allData;
       };
 
-      const allDataArray=Object.values(allCountries).map((item)=>{
-        const id = item.id;
-          return { ...item, id};
-      });
-
-      const allData = allCasesDeathsByCountry.slice();  
-      allData.unshift(allDataArray);
-
-      console.log(allDataArray);
-
-      
-       
-        
-  return allData;
-};
+      export default CovidData;

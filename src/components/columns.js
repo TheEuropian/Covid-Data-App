@@ -1,12 +1,16 @@
 export const COLUMNS = [
+  /*  {
+        Header: "POP",
+        accessor: 'popData2019'
+    },
   
     {
         Header: "ID",
         accessor: 'id'
-    },
+    },*/
     {
         Header: "Date",
-        accessor: 'dateRep'
+        accessor: 'date'
     },
     {
         Header: "Country",

@@ -1,31 +1,19 @@
-import React, { useMemo } from "react";
+import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-function Graph({ data, selectedCountry }) {
-  // Filter data based on selected country and time range
-  const filteredData = useMemo(() => {
-    let dataToFilter = data.filter((item) => {
-      if (selectedCountry === "Afganistan") return true;
-      return item.countriesAndTerritories === selectedCountry;
-    });
-
-
-
-    return dataToFilter;
-  }, [data, selectedCountry]);
-
+function Graph({ data }) {
   const series = [
     {
       name: "Cases",
-      data: filteredData.map((item) => item.allCases),
+      data: data.map((item) => item.allCases),
     },
     {
       name: "Deaths",
-      data: filteredData.map((item) => item.allDeaths),
+      data: data.map((item) => item.allDeaths),
     },
   ];
 
-  const xaxisCategories = filteredData.map((item) => item.isoDateString);
+  const xaxisCategories = data.map((item) => item.date);
 
   const options = {
     chart: {
@@ -44,7 +32,7 @@ function Graph({ data, selectedCountry }) {
     },
     tooltip: {
       x: {
-        format: "dd/MM/yyyy",
+        format: "yyyy/mm/dd",
       },
     },
   };

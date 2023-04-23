@@ -1,0 +1,34 @@
+.rdrDayNumber {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .rdrDayNumber span {
+    z-index: 1;
+  }
+  
+  .rdrInRange,
+  .rdrStartEdge,
+  .rdrEndEdge {
+    background-color: #91a1ff;
+    border-radius: 0;
+  }
+  
+  .rdrStartEdge {
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+  }
+  
+  .rdrEndEdge {
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+  }
+  
+  .rdrDay:not(.rdrDayPassive) .rdrDayNumber span {
+    color: #4a4a4a;
+  }
+  
+  .rdrDayPassive .rdrDayNumber span {
+    color: #ccc;
+  }
